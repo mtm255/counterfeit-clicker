@@ -1,0 +1,102 @@
+{
+  "WATCH_PIXEL_1": [
+    846,
+    527
+  ],
+  "WATCH_PIXEL_2": [
+    1580,
+    564
+  ],
+  "BUTTON_1": [
+    846,
+    527
+  ],
+  "BUTTON_2": [
+    1580,
+    564
+  ],
+  "EQUIPPED_INDICATOR_PIXEL": [
+    1307,
+    1405
+  ],
+  "ITEM_TOGGLE_KEY": "1",
+  "ITEM_AUTOCLICK_BUTTON": [
+    1383,
+    225
+  ],
+  "LOOP_DELAY_SEC": 0.05,
+  "AUTOCLICK_INTERVAL_SEC": 0.03,
+  "POST_EQUIP_DELAY_SEC": 0.08,
+  "POST_UNEQUIP_DELAY_SEC": 0.1,
+  "GREEN_CLICK_INTERVAL_SEC": 0.03,
+  "MOUSE_DOWN_UP_DELAY_SEC": 0.015,
+  "SMOOTH_MOVE_DURATION_SEC": 0.06,
+  "SMOOTH_MOVE_STEPS": 8,
+  "MAX_EQUIP_RETRIES": 3,
+  "MAX_UNEQUIP_RETRIES": 3,
+  "MAX_GREEN_CLICK_ATTEMPTS": 2,
+  "DEBUG_STATE": false,
+  "COLOR_TOLERANCE": 35,
+  "BLUE_TOLERANCE": 35,
+  "CHANNEL_DOMINANCE_MIN": 25,
+  "SAMPLE_OFFSETS": [
+    [
+      0,
+      0
+    ],
+    [
+      -2,
+      0
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      0,
+      -2
+    ],
+    [
+      0,
+      2
+    ]
+  ],
+  "MIN_SAMPLES_FOR_STATE": 2,
+  "GREEN_CLICK_OFFSETS": [
+    [
+      0,
+      0
+    ],
+    [
+      6,
+      0
+    ],
+    [
+      -6,
+      0
+    ],
+    [
+      0,
+      6
+    ],
+    [
+      0,
+      -6
+    ]
+  ],
+  "RED_TARGET": [
+    172,
+    65,
+    45
+  ],
+  "GREEN_TARGET": [
+    58,
+    172,
+    50
+  ],
+  "BLUE_TARGET": [
+    90,
+    142,
+    233
+  ]
+}
