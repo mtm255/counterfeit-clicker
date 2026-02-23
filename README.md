@@ -4,9 +4,9 @@ A Windows desktop automation tool for pixel-based button handling with a clean G
 
 It watches two button pixels and follows this logic:
 
-- If **both buttons are red**: equip item (key `1`) and autoclick.
-- If **either button is green**: unequip item and click the green button.
-- Button priority when both are green: **Button 1 first**, then Button 2 when it becomes green.
+- If **both buttons are red**: equip cola (**must be in slot `1`**) and autoclick.
+- If **either button is green**: unequip cold (**must be in slot `1`**) and click the green button.
+- Button priority when both are green: click both buttons, waiting for them to turn red.
 
 ---
 
@@ -155,3 +155,4 @@ python -m pip install --upgrade pillow
 ---
 
 Developed by **mtm25**
+
