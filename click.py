@@ -28,6 +28,7 @@ ITEM_TOGGLE_KEY = "1"
 
 # Click targets.
 ITEM_AUTOCLICK_BUTTON = (1383, 225)
+USE_SCREEN_CENTER_FOR_ITEM_AUTOCLICK = True
 
 # Timing.
 LOOP_DELAY_SEC = 0.05
@@ -177,6 +178,7 @@ def _config_dict() -> dict:
         "EQUIPPED_INDICATOR_PIXEL": list(EQUIPPED_INDICATOR_PIXEL),
         "ITEM_TOGGLE_KEY": ITEM_TOGGLE_KEY,
         "ITEM_AUTOCLICK_BUTTON": list(ITEM_AUTOCLICK_BUTTON),
+        "USE_SCREEN_CENTER_FOR_ITEM_AUTOCLICK": USE_SCREEN_CENTER_FOR_ITEM_AUTOCLICK,
         "LOOP_DELAY_SEC": LOOP_DELAY_SEC,
         "AUTOCLICK_INTERVAL_SEC": AUTOCLICK_INTERVAL_SEC,
         "POST_EQUIP_DELAY_SEC": POST_EQUIP_DELAY_SEC,
@@ -209,6 +211,7 @@ def save_config() -> None:
 def load_config() -> None:
     global WATCH_PIXEL_1, WATCH_PIXEL_2, BUTTON_1, BUTTON_2
     global EQUIPPED_INDICATOR_PIXEL, ITEM_TOGGLE_KEY, ITEM_AUTOCLICK_BUTTON
+    global USE_SCREEN_CENTER_FOR_ITEM_AUTOCLICK
     global LOOP_DELAY_SEC, AUTOCLICK_INTERVAL_SEC, POST_EQUIP_DELAY_SEC, POST_UNEQUIP_DELAY_SEC
     global GREEN_CLICK_INTERVAL_SEC, MOUSE_DOWN_UP_DELAY_SEC, SMOOTH_MOVE_DURATION_SEC
     global SMOOTH_MOVE_STEPS, MAX_EQUIP_RETRIES, MAX_UNEQUIP_RETRIES, MAX_GREEN_CLICK_ATTEMPTS
@@ -240,6 +243,10 @@ def load_config() -> None:
     EQUIPPED_INDICATOR_PIXEL = _to_pair(cfg.get("EQUIPPED_INDICATOR_PIXEL"), EQUIPPED_INDICATOR_PIXEL)
     ITEM_TOGGLE_KEY = str(cfg.get("ITEM_TOGGLE_KEY", ITEM_TOGGLE_KEY))
     ITEM_AUTOCLICK_BUTTON = _to_pair(cfg.get("ITEM_AUTOCLICK_BUTTON"), ITEM_AUTOCLICK_BUTTON)
+    USE_SCREEN_CENTER_FOR_ITEM_AUTOCLICK = _to_bool(
+        cfg.get("USE_SCREEN_CENTER_FOR_ITEM_AUTOCLICK"),
+        USE_SCREEN_CENTER_FOR_ITEM_AUTOCLICK,
+    )
 
     LOOP_DELAY_SEC = _to_float(cfg.get("LOOP_DELAY_SEC"), LOOP_DELAY_SEC)
     AUTOCLICK_INTERVAL_SEC = _to_float(cfg.get("AUTOCLICK_INTERVAL_SEC"), AUTOCLICK_INTERVAL_SEC)
@@ -377,6 +384,13 @@ def click_mouse_position() -> None:
     print(f"Test clicked at ({x}, {y})")
 
 
+def get_item_autoclick_point() -> tuple[int, int]:
+    if USE_SCREEN_CENTER_FOR_ITEM_AUTOCLICK:
+        w, h = pyautogui.size()
+        return (w // 2, h // 2)
+    return ITEM_AUTOCLICK_BUTTON
+
+
 def sample_points(center: tuple[int, int]) -> list[tuple[int, int, int]]:
     cx, cy = center
     samples: list[tuple[int, int, int]] = []
@@ -501,6 +515,14 @@ def set_button_slot(slot: int) -> None:
     publish_message(f"Successfully set position for Button {slot}: {point}")
 
 
+def set_equipped_indicator_pixel() -> None:
+    global EQUIPPED_INDICATOR_PIXEL
+    x, y = pyautogui.position()
+    EQUIPPED_INDICATOR_PIXEL = (int(x), int(y))
+    save_config()
+    publish_message(f"Successfully set equipped indicator pixel: {EQUIPPED_INDICATOR_PIXEL}")
+
+
 def publish_message(text: str) -> None:
     global ui_message
     ui_message = text
@@ -540,7 +562,7 @@ def worker() -> None:
             red_only = red_1 and red_2 and not (green_1 or green_2)
             if red_only:
                 ensure_equipped()
-                click_point(ITEM_AUTOCLICK_BUTTON)
+                click_point(get_item_autoclick_point())
                 time.sleep(AUTOCLICK_INTERVAL_SEC)
                 continue
 
@@ -775,6 +797,7 @@ class ClickerGui:
         adv_actions.columnconfigure(0, weight=1)
         adv_actions.columnconfigure(1, weight=1)
         adv_actions.columnconfigure(2, weight=1)
+        adv_actions.columnconfigure(3, weight=1)
         self.make_button(adv_actions, "Test Click (Ctrl+F4)", self.on_test_click, "secondary").grid(
             row=0, column=0, sticky="ew", padx=(0, 8)
         )
@@ -784,6 +807,12 @@ class ClickerGui:
         self.make_button(adv_actions, "Toggle Debug", self.on_toggle_debug, "secondary").grid(
             row=0, column=2, sticky="ew"
         )
+        self.make_button(
+            adv_actions,
+            "Set Equipped (Ctrl+F3)",
+            self.on_set_equipped_indicator,
+            "secondary",
+        ).grid(row=0, column=3, sticky="ew", padx=(8, 0))
 
         hotkeys_box = ttk.LabelFrame(advanced_tab, text="Hotkeys", padding=10, style="Tip.TLabelframe")
         hotkeys_box.pack(fill="x", pady=(12, 0))
@@ -791,6 +820,7 @@ class ClickerGui:
             hotkeys_box,
             text="Ctrl + F1: Set Button 1 Position\n"
             "Ctrl + F2: Set Button 2 Position\n"
+            "Ctrl + F3 (Advanced tab): Set Equipped Indicator Pixel\n"
             "Ctrl + F4: Test Click\n"
             "Ctrl + F5: Probe Pixel\n"
             "F6: Save Config   F7: Start/Pause   F8: Quit",
@@ -812,6 +842,7 @@ class ClickerGui:
         root.bind("<F8>", lambda _e: self.on_quit())
         root.bind("<Control-F1>", lambda _e: set_button_slot(1))
         root.bind("<Control-F2>", lambda _e: set_button_slot(2))
+        root.bind("<Control-F3>", lambda _e: self.on_set_equipped_indicator_hotkey())
 
         self.show_tab("main")
         self.refresh_status()
@@ -1020,6 +1051,17 @@ class ClickerGui:
             publish_message(f"Config saved: {CONFIG_PATH}")
         except Exception as exc:
             publish_message(f"[!] Config save failed: {exc}")
+
+    def on_set_equipped_indicator(self) -> None:
+        try:
+            set_equipped_indicator_pixel()
+        except Exception as exc:
+            publish_message(f"[!] Equipped indicator set failed: {exc}")
+
+    def on_set_equipped_indicator_hotkey(self) -> None:
+        if self.active_tab != "advanced":
+            return
+        self.on_set_equipped_indicator()
 
     def on_quit(self) -> None:
         publish_message("Quit requested.")
