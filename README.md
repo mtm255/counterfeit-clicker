@@ -16,7 +16,6 @@ It watches two button pixels and follows this logic:
 - Global hotkeys (works while game is focused)
 - Auto-save/load config from `click_config.json`
 - Per-button position capture with `Ctrl+F1` / `Ctrl+F2`
-- Equipped-indicator pixel capture with `Ctrl+F3` (Advanced tab only)
 - Reliable click handling for game UI (mouse movement + retries)
 - Failsafe stop support (`F8` + PyAutoGUI top-left failsafe)
 
@@ -128,6 +127,12 @@ Output:
 - Use `Ctrl+F5` to confirm live RGB values.
 - Use **Advanced > Toggle Debug** to print state sampling.
 
+## It doesn't click the cola
+- Equip your Cola ingame
+- Move to the `Advanced` tab in the app
+- Hover your mouse cursor over the blue box around the cola on hotbar when equipped
+- Press `Ctrl + F3` to set the location the script will look to see if the cola is equipped
+
 ### It clicks only when you move your mouse
 
 - Keep using current build: it already includes movement nudges for game input registration.
@@ -155,4 +160,5 @@ python -m pip install --upgrade pillow
 ---
 
 Developed by **mtm25**
+
 
